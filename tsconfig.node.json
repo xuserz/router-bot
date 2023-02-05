@@ -19,9 +19,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
   },
-  "include": [
-    "testing.ts",
-  ],
   "exclude": [
     "node_modules"
   ]
