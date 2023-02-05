@@ -1,0 +1,1 @@
+export type IEventNames = "NEW_PAGE" | "BACK_PAGE"

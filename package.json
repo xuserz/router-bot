@@ -1,0 +1,31 @@
+{
+  "scripts": {
+    "prebuild": "run-script-os",
+    "prebuild:win32": "rd /s /q .\\dist || mkdir .\\dist\\",
+    "prebuild:linux": "rm -rf ./dist/*",
+    "copy": "run-script-os",
+    "copy:win32": "Xcopy .\\static .\\dist /E /H /C /I",
+    "copy:linux": "cp -r static/* ./dist",
+    "build": "yarn prebuild && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript && yarn copy",
+    "release": "git subtree push --prefix dist https://github.com/elum-team/signal release",
+    "start": "ts-node --project tsconfig.node.json -r tsconfig-paths/register index.ts",
+    "publish:beta": "npm publish --tag beta"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "latest",
+    "@types/node": "latest",
+    "cross-env": "latest",
+    "esbuild": "latest",
+    "nodemon": "latest",
+    "rollup": "latest",
+    "rollup-plugin-dts": "latest",
+    "rollup-plugin-esbuild": "latest",
+    "run-script-os": "^1.1.6",
+    "tsconfig-paths": "latest",
+    "tslib": "latest",
+    "typescript": "latest"
+  },
+  "peerDependencies": {
+    "redis": "^4.6.4"
+  }
+}

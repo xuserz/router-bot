@@ -1,0 +1,1 @@
+export type IRoutering = Record<string, string> | undefined;
