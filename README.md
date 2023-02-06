@@ -4,7 +4,7 @@
 
 ```js
     const { Router } = requier('apiteam-router-bot'); //es5
-Orr
+OR
     import { Router } from 'apiteam-router-bot'; //es6
 ```
 *Создание*
