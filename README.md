@@ -2,12 +2,11 @@
 
 **Импортирование**
 
+```js
     const { Router } = requier('apiteam-router-bot'); //es5
-or
-  
-
+Orr
     import { Router } from 'apiteam-router-bot'; //es6
-
+```
 *Создание*
 
     const route = new Router({
