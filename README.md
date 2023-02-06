@@ -9,14 +9,16 @@ Orr
 ```
 *Создание*
 
+```js
     const route = new Router({
       devMode: true //стандартное заначение {false}
     })
-
+```
 **Использование**
 
  
 
+```js
     import TelegramBot from "node-telegram-bot-api";
     const TOKEN = '5796185493:AAHXakbzP_8tqMbmJSXL0GMvcqyvOJ8EAy0';
     const bot = new TelegramBot(TOKEN, { polling: true });
@@ -86,10 +88,11 @@ Orr
        }
       }
     })    
-
+```
 
 **./routers**
 
+```js
     export const VIEW_START = `view_start`;
     
     export const PAGE_START =`PAGE_START`;
@@ -103,12 +106,13 @@ Orr
       PAGE_BACK: "page_back",
       PAGE_END: "page_end",
     }
-
+```
 
 
 
 **Использование Redis**
 
+```js
      import { Router, Redis } from 'apiteam-router-bot';
      
      const redis = new Redis(`redis://127.0.0.1:6379/`);
@@ -121,7 +125,7 @@ Orr
       redis: redis,
       devMode: true, //стандартное заначение {false}
     })
-
+```
 
 
 
