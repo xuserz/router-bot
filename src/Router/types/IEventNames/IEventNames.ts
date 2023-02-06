@@ -1,1 +1,1 @@
-export type IEventNames = "NEW_PAGE" | "BACK_PAGE"
+export type IEventNames = "NEW_PAGE" | "BACK_PAGE" | "REPLACE_PAGE" | "NEW_PARAMS";

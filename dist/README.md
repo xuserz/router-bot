@@ -2,11 +2,11 @@
 
 **Импортирование**
 
-    const { Router } = requier('apiteam-router-bot'); //es5
+    const { Router } = requier('bot-router'); //es5
 or
   
 
-    import { Router } from 'apiteam-router-bot'; //es6
+    import { Router } from 'bot-router'; //es6
 
 *Создание*
 
@@ -110,7 +110,7 @@ or
 
 **Использование Redis**
 
-     import { Router, Redis } from 'apiteam-router-bot';
+     import { Router, Redis } from 'bot-router';
      
      const redis = new Redis(`redis://127.0.0.1:6379/`);
      async function startRedis() {

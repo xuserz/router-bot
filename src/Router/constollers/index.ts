@@ -6,6 +6,8 @@ export { default as activeViewId } from './activeViewId/activeViewId';
 export { default as pushPage } from './pushPage/pushPage';
 export { default as popPage } from './popPage/popPage';
 export { default as backPage } from './backPage/backPage';
+export { default as addParamsActivePage } from './addParamsActivePage/addParamsActivePage';
+export { default as replacePage } from './replacePage/replacePage';
 
 
 //private

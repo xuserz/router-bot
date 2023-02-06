@@ -1,12 +1,16 @@
 {
-  "name": "apiteam-router-bot",
-  "version": "1.0.5",
+  "name": "bot-router",
+  "version": "1.0.1",
   "description": "Ротер для ботов",
   "main": "index.js",
   "module": "index.mjs",
   "typings": "index.d.ts",
   "license": "MIT",
   "author": "apiteam.ru",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xuserz/router-bot"
+  },
   "keywords": [
     "router bot",
     "bot router",

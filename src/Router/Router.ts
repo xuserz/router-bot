@@ -2,9 +2,10 @@ import { IListPage, IPage, IUserId, IRoutering, IEventData, IEventNames } from "
 
 import Redis from './Redis/Redis';
 
-import { getCustomViews, backPage, getViewById, activePage, getLocation, activeViewId, pushPage, popPage } from './constollers';
+import { getCustomViews, backPage, getViewById, activePage, addParamsActivePage, getLocation, activeViewId, pushPage, popPage, replacePage } from './constollers';
 
 import { EventEmitter } from "events";
+import { isArray } from "util";
 
 declare global {
   var devMode: boolean;
@@ -31,17 +32,37 @@ class Router extends EventEmitter {
   private sendEvents = (event_name: IEventNames, data: Object) => this.emit(event_name, data); //Отправка запроса по идентификатору
 
 
-  listen = (callback_name: IEventNames, callback: (data: IEventData) => void) => {
+  listen = (callback_name: IEventNames | Array<IEventNames>, callback: (data: IEventData) => void) => {
     const eventData = (data: IEventData) => callback(data);
-    this.on(callback_name, eventData);
+
+    if (Array.isArray(callback_name)) {
+      for (var item of callback_name) this.on(item, eventData);
+    } else this.on(callback_name, eventData);
   } // Инициализация подключения
+
+  addParamsActivePage = async (params: any, user_id: IUserId) => await addParamsActivePage({
+    user_id,
+    history: this.listPages,
+    redis: this.redis,
+    params,
+    sendEvents: this.sendEvents
+  })
+
+  replacePage = async (page_id: any, user_id: IUserId, params?:any) => await replacePage({
+    user_id,
+    history: this.listPages,
+    redis: this.redis,
+    page_id,
+    params,
+    sendEvents: this.sendEvents
+  })
 
   getCustomViews = (view_id: string) => getCustomViews({
     routers: this.routers,
     view_id
   });
 
-  getViewById = async (view_id: string, user_id: IUserId = 0) => getViewById({
+  getViewById = async (view_id: string, user_id: IUserId = 0) => await getViewById({
     view_id,
     user_id,
     routers: this.routers,
