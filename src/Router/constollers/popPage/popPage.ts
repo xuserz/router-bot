@@ -8,13 +8,15 @@ type IPopPage = {
   redis: Redis;
   history: Array<IListPage>;
   sendEvents: (event_name: IEventNames, { user_id, page_id, old_page_id, params }: IEventData) => void;
+  params?: any;
 }
 
 const popPage = async ({
   user_id,
   redis,
   history,
-  sendEvents
+  sendEvents,
+  params
 }: IPopPage) => {
   //redis
   var old_page_id = ``;
@@ -32,7 +34,7 @@ const popPage = async ({
         user_id,
         page_id: view.pages[view.pages.length - 1] && view.pages[view.pages.length - 1].page_id,
         old_page_id: view.pages[view.pages.length - 1].page_id,
-        params: view.pages[view.pages.length - 1] && view.pages[view.pages.length - 1].params
+        params: params || view.pages[view.pages.length - 1] && view.pages[view.pages.length - 1].params
       })
     }
 
@@ -45,12 +47,15 @@ const popPage = async ({
       } else {
         view.pages.pop();
       }
-      sendEvents(`BACK_PAGE`, {
-        user_id,
-        page_id: view.pages[view.pages.length - 1].page_id,
-        old_page_id: view.pages[view.pages.length - 1].page_id,
-        params: view.pages[view.pages.length - 1].params
-      })
+      view = await getView({ redis, history, user_id });
+      if (view) {
+        sendEvents(`BACK_PAGE`, {
+          user_id,
+          page_id: view.pages[view.pages.length - 1].page_id,
+          old_page_id: view.pages[view.pages.length - 1].page_id,
+          params: params || view.pages[view.pages.length - 1].params
+        })
+      }
     };
   }
 }

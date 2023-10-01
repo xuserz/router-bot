@@ -5,7 +5,6 @@ import Redis from './Redis/Redis';
 import { getCustomViews, backPage, getViewById, activePage, addParamsActivePage, getLocation, activeViewId, pushPage, popPage, replacePage } from './constollers';
 
 import { EventEmitter } from "events";
-import { isArray } from "util";
 
 declare global {
   var devMode: boolean;
@@ -29,11 +28,11 @@ class Router extends EventEmitter {
     globalThis.devMode = devMode;
   }
 
-  private sendEvents = (event_name: IEventNames, data: Object) => this.emit(event_name, data); //Отправка запроса по идентификатору
+  private sendEvents = (event_name: IEventNames, data: Object) => this.emit(event_name, data, event_name); //Отправка запроса по идентификатору
 
 
-  listen = (callback_name: IEventNames | Array<IEventNames>, callback: (data: IEventData) => void) => {
-    const eventData = (data: IEventData) => callback(data);
+  listen = (callback_name: IEventNames | Array<IEventNames>, callback: (data: IEventData, event_name: IEventNames) => void) => {
+    const eventData = (data: IEventData, event_name: IEventNames) => callback(data, event_name);
 
     if (Array.isArray(callback_name)) {
       for (var item of callback_name) this.on(item, eventData);
@@ -48,7 +47,7 @@ class Router extends EventEmitter {
     sendEvents: this.sendEvents
   })
 
-  replacePage = async (page_id: any, user_id: IUserId, params?:any) => await replacePage({
+  replacePage = async (page_id: any, user_id: IUserId, params?: any) => await replacePage({
     user_id,
     history: this.listPages,
     redis: this.redis,
@@ -107,9 +106,9 @@ class Router extends EventEmitter {
     })
   }
 
-  popPage = async (user_id: IUserId = 0) => {
+  popPage = async (user_id: IUserId = 0, params?: any) => {
     await popPage({
-      user_id, redis: this.redis, history: this.listPages, sendEvents: this.sendEvents
+      user_id, params, redis: this.redis, history: this.listPages, sendEvents: this.sendEvents
     })
   }
 

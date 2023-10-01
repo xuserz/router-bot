@@ -27,5 +27,8 @@
   },
   "peerDependencies": {
     "redis": "^4.6.4"
+  },
+  "dependencies": {
+    "redis": "^4.6.10"
   }
 }

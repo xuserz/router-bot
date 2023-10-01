@@ -59,7 +59,7 @@ const pushPage = async (page_id: string, user_id: IUserId = 0, {
       view_id,
       user_id
     });
-    old_page_id = view.pages[view.pages.length - 1].page_id;
+    if(view.pages[view.pages.length - 1]) old_page_id = view.pages[view.pages.length - 1].page_id;
     view.pages.push({ page_id, params });
   }
   sendEvents(`NEW_PAGE`, {
