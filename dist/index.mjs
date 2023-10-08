@@ -140,7 +140,8 @@ const pushPage = async (page_id, user_id = 0, {
       view_id,
       user_id
     });
-    old_page_id = view.pages[view.pages.length - 1].page_id;
+    if (view.pages[view.pages.length - 1])
+      old_page_id = view.pages[view.pages.length - 1].page_id;
     view.pages.push({ page_id, params });
   }
   sendEvents(`NEW_PAGE`, {
@@ -155,7 +156,8 @@ const popPage = async ({
   user_id,
   redis,
   history,
-  sendEvents
+  sendEvents,
+  params
 }) => {
   const _isRedis = redisGetReady(redis);
   if (_isRedis) {
@@ -171,7 +173,7 @@ const popPage = async ({
         user_id,
         page_id: view2.pages[view2.pages.length - 1] && view2.pages[view2.pages.length - 1].page_id,
         old_page_id: view2.pages[view2.pages.length - 1].page_id,
-        params: view2.pages[view2.pages.length - 1] && view2.pages[view2.pages.length - 1].params
+        params: params || view2.pages[view2.pages.length - 1] && view2.pages[view2.pages.length - 1].params
       });
     }
     await redisSetViews({ redis, user_id, views: redis_views });
@@ -183,12 +185,15 @@ const popPage = async ({
       } else {
         view.pages.pop();
       }
-      sendEvents(`BACK_PAGE`, {
-        user_id,
-        page_id: view.pages[view.pages.length - 1].page_id,
-        old_page_id: view.pages[view.pages.length - 1].page_id,
-        params: view.pages[view.pages.length - 1].params
-      });
+      view = await getView({ redis, history, user_id });
+      if (view) {
+        sendEvents(`BACK_PAGE`, {
+          user_id,
+          page_id: view.pages[view.pages.length - 1].page_id,
+          old_page_id: view.pages[view.pages.length - 1].page_id,
+          params: params || view.pages[view.pages.length - 1].params
+        });
+      }
     }
   }
 };
@@ -272,6 +277,99 @@ const backPage = async ({
   }
 };
 
+const addParamsActivePage = async ({
+  user_id,
+  redis,
+  history,
+  params,
+  sendEvents
+}) => {
+  const view = await getView({
+    redis,
+    user_id,
+    history
+  });
+  if (view) {
+    const _isRedis = redisGetReady(redis);
+    var old_params = {};
+    if (_isRedis) {
+      var views = await redisGetViews({ redis, user_id });
+      if (views.find((x) => x.view_id == view.view_id && x.user_id === user_id)) {
+        var pages = views.find((x) => x.view_id == view.view_id && x.user_id === user_id).pages;
+        old_params = pages[pages.length - 1].params;
+        pages[pages.length - 1].params = { ...pages[pages.length - 1].params, ...params };
+        await redisSetViews({ redis, user_id, views });
+        sendEvents(`NEW_PARAMS`, {
+          page_id: pages[pages.length - 1].page_id,
+          old_params,
+          params: pages[pages.length - 1].params,
+          user_id
+        });
+        return true;
+      }
+    } else {
+      old_params = view.pages[view.pages.length - 1].params;
+      view.pages[view.pages.length - 1].params = { ...view.pages[view.pages.length - 1].params, ...params };
+      sendEvents(`NEW_PARAMS`, {
+        page_id: view.pages[view.pages.length - 1].page_id,
+        old_params,
+        params: view.pages[view.pages.length - 1].params,
+        user_id
+      });
+      return true;
+    }
+  }
+  return false;
+};
+
+const replacePage = async ({
+  user_id,
+  redis,
+  history,
+  page_id,
+  params,
+  sendEvents
+}) => {
+  const view = await getView({
+    redis,
+    user_id,
+    history
+  });
+  var old_page_id = ``;
+  if (view) {
+    const _isRedis = redisGetReady(redis);
+    if (_isRedis) {
+      var views = await redisGetViews({ redis, user_id });
+      if (views.find((x) => x.view_id == view.view_id && x.user_id === user_id)) {
+        var pages = views.find((x) => x.view_id == view.view_id && x.user_id === user_id).pages;
+        old_page_id = pages[pages.length - 1].page_id;
+        pages[pages.length - 1].page_id = page_id;
+        pages[pages.length - 1].params = params;
+        await redisSetViews({ redis, user_id, views });
+        sendEvents(`REPLACE_PAGE`, {
+          page_id,
+          old_page_id,
+          user_id,
+          params: pages[pages.length - 1].params
+        });
+        return true;
+      }
+    } else {
+      old_page_id = view.pages[view.pages.length - 1].page_id;
+      view.pages[view.pages.length - 1].page_id = page_id;
+      view.pages[view.pages.length - 1].params = params;
+      sendEvents(`REPLACE_PAGE`, {
+        page_id,
+        old_page_id,
+        user_id,
+        params: view.pages[view.pages.length - 1].params
+      });
+      return true;
+    }
+  }
+  return false;
+};
+
 const getViewId = async ({
   view_id,
   user_id = 0,
@@ -351,18 +449,37 @@ class Router extends EventEmitter {
     this.routers = routers;
     globalThis.devMode = devMode;
   }
-  sendEvents = (event_name, data) => this.emit(event_name, data);
+  sendEvents = (event_name, data) => this.emit(event_name, data, event_name);
   //Отправка запроса по идентификатору
   listen = (callback_name, callback) => {
-    const eventData = (data) => callback(data);
-    this.on(callback_name, eventData);
+    const eventData = (data, event_name) => callback(data, event_name);
+    if (Array.isArray(callback_name)) {
+      for (var item of callback_name)
+        this.on(item, eventData);
+    } else
+      this.on(callback_name, eventData);
   };
   // Инициализация подключения
+  addParamsActivePage = async (params, user_id) => await addParamsActivePage({
+    user_id,
+    history: this.listPages,
+    redis: this.redis,
+    params,
+    sendEvents: this.sendEvents
+  });
+  replacePage = async (page_id, user_id, params) => await replacePage({
+    user_id,
+    history: this.listPages,
+    redis: this.redis,
+    page_id,
+    params,
+    sendEvents: this.sendEvents
+  });
   getCustomViews = (view_id) => getCustomViews({
     routers: this.routers,
     view_id
   });
-  getViewById = async (view_id, user_id = 0) => getViewById({
+  getViewById = async (view_id, user_id = 0) => await getViewById({
     view_id,
     user_id,
     routers: this.routers,
@@ -399,9 +516,10 @@ class Router extends EventEmitter {
       sendEvents: this.sendEvents
     });
   };
-  popPage = async (user_id = 0) => {
+  popPage = async (user_id = 0, params) => {
     await popPage({
       user_id,
+      params,
       redis: this.redis,
       history: this.listPages,
       sendEvents: this.sendEvents

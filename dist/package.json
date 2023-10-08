@@ -1,6 +1,6 @@
 {
   "name": "bot-router",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Ротер для ботов",
   "main": "index.js",
   "module": "index.mjs",

@@ -2,32 +2,22 @@
 
 **Импортирование**
 
-<<<<<<< HEAD:dist/README.md
     const { Router } = requier('bot-router'); //es5
 or
   
 
     import { Router } from 'bot-router'; //es6
 
-=======
-```js
-    const { Router } = requier('apiteam-router-bot'); //es5
-OR
-    import { Router } from 'apiteam-router-bot'; //es6
-```
->>>>>>> 10b7e705974e26e80cc09364c0bc312d898bce57:README.md
 *Создание*
 
-```js
     const route = new Router({
       devMode: true //стандартное заначение {false}
     })
-```
+
 **Использование**
 
  
 
-```js
     import TelegramBot from "node-telegram-bot-api";
     const TOKEN = '5796185493:AAHXakbzP_8tqMbmJSXL0GMvcqyvOJ8EAy0';
     const bot = new TelegramBot(TOKEN, { polling: true });
@@ -97,11 +87,10 @@ OR
        }
       }
     })    
-```
+
 
 **./routers**
 
-```js
     export const VIEW_START = `view_start`;
     
     export const PAGE_START =`PAGE_START`;
@@ -115,18 +104,13 @@ OR
       PAGE_BACK: "page_back",
       PAGE_END: "page_end",
     }
-```
+
 
 
 
 **Использование Redis**
 
-<<<<<<< HEAD:dist/README.md
      import { Router, Redis } from 'bot-router';
-=======
-```js
-     import { Router, Redis } from 'apiteam-router-bot';
->>>>>>> 10b7e705974e26e80cc09364c0bc312d898bce57:README.md
      
      const redis = new Redis(`redis://127.0.0.1:6379/`);
      async function startRedis() {
@@ -138,7 +122,7 @@ OR
       redis: redis,
       devMode: true, //стандартное заначение {false}
     })
-```
+
 
 
 

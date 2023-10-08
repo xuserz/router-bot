@@ -18,12 +18,13 @@ type IRoutering = Record<string, string> | undefined;
 
 type IEventData = {
     page_id: string;
-    old_page_id: string;
+    old_page_id?: string;
+    old_params?: any;
     user_id: IUserId;
     params?: any;
 };
 
-type IEventNames = "NEW_PAGE" | "BACK_PAGE";
+type IEventNames = "NEW_PAGE" | "BACK_PAGE" | "REPLACE_PAGE" | "NEW_PARAMS";
 
 declare global {
     var redis: Redis;
@@ -35,7 +36,7 @@ declare class Redis {
     set: (key: string, value: object | string) => Promise<boolean>;
     keys: (key: string) => Promise<string[]>;
     setex: (key: string, seconds: number, value: object | string) => Promise<boolean>;
-    init: () => Promise<void>;
+    init: () => Promise<any>;
 }
 
 declare global {
@@ -52,7 +53,9 @@ declare class Router extends EventEmitter {
         devMode?: boolean;
     });
     private sendEvents;
-    listen: (callback_name: IEventNames, callback: (data: IEventData) => void) => void;
+    listen: (callback_name: IEventNames | Array<IEventNames>, callback: (data: IEventData, event_name: IEventNames) => void) => void;
+    addParamsActivePage: (params: any, user_id: IUserId) => Promise<boolean>;
+    replacePage: (page_id: any, user_id: IUserId, params?: any) => Promise<boolean>;
     getCustomViews: (view_id: string) => string;
     getViewById: (view_id: string, user_id?: IUserId) => Promise<any>;
     activePage: (user_id?: IUserId) => Promise<any>;
@@ -62,7 +65,7 @@ declare class Router extends EventEmitter {
         view_id?: string | undefined;
         params?: any;
     }) => Promise<void>;
-    popPage: (user_id?: IUserId) => Promise<void>;
+    popPage: (user_id?: IUserId, params?: any) => Promise<void>;
     backPage: (page_id: string, user_id?: IUserId) => Promise<boolean>;
 }
 
